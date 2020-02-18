@@ -20,7 +20,7 @@ comment ;
       if s<tol then g:=0 else
       begin
          f:=u[i,i]; g:= if f<0 then sqrt(s) else -sqrt(s);
-         h:=f*g - s; u[i,i]:= f-g;
+         h:=f*g-s; u[i,i]:= f-g;
          for j:= l step 1 until n do
          begin
             s:= 0;
@@ -34,7 +34,7 @@ comment ;
       if s<tol then g:=0 else
       begin
          f:= u[i,i+1]; g:= if f<0 then sqrt(s) else -sqrt(s);
-         h:=f*g - s; u[i,i+1]:=f-g;
+         h:=f*g-s; u[i,i+1]:=f-g;
          for j:= l step 1 until n do e[j]:=u[i,j]/h;
          for j:= l step 1 until m do
          begin
@@ -94,7 +94,7 @@ comment ;
          end l;
 comment ;
       cancellation:
-         c:= 0; s:= 1; l1:= l - 1;
+         c:= 0; s:= 1; l1:= l-1;
          for i:= l step 1 until k do
          begin
             f:= s*e[i]; e[i]:= c*e[i];
