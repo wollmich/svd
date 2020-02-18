@@ -43,7 +43,7 @@ comment ;
             for k:=l step 1 until n do u[j,k]:=u[j,k]+s*e[k]
          end j
       end s;
-      y:= abs(q[i])+abs(e[i]); if y>x then x:=y;
+      y:= abs(q[i])+abs(e[i]); if y>x then x:=y
    end i;
 comment ;
    if withv then for i:= n step -1 until 1 do
