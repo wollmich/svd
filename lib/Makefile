@@ -7,6 +7,7 @@ MARST = marst
 L = libsvd.a
 O = \
 svd.o\
+minifit.o\
 
 $L: $O; ar r $@ $O && ranlib $@
 .c.o:; $(CC) $(CFLAGS) $< -c

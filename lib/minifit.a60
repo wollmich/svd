@@ -1,0 +1,16 @@
+procedure Minifit (m, n, p, eps, tol) trans: (ab) result: (q);
+   value m, n, p, eps, tol;
+   integer m, n, p;
+   real eps, tol;
+   array ab, q;
+comment ;
+begin
+   integer i, j, k, l, l1, n1, np;
+   real c, f, g, h, s, x, y, z;
+   array e[1:n];
+comment ;
+   g:= x:= 0; np:= n + p;
+   for i:= 1 step 1 until n do
+   begin
+   end
+end;
