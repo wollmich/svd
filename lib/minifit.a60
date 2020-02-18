@@ -12,5 +12,111 @@ comment ;
    g:= x:= 0; np:= n + p;
    for i:= 1 step 1 until n do
    begin
-   end
+      e[i]:= g; s:= 0; l:= i+1;
+      for j:=i step 1 until m do s:= s+ab[j,i]^2;
+      if s<tol then g:= 0 else
+      begin
+         f:= ab[i,i]; g:= if f<0 then sqrt(s) else -sqrt(s);
+         h:= f*g - s; ab[i,i]:= f-g;
+         for j:= l step 1 until np do
+         begin
+            s:= 0;
+            for k:= i step 1 until m do s:= s + ab[k,i]*ab[k,j];
+            f:= s/h;
+            for k:= i step 1 until m do ab[k,j]:= ab[k,j] + f*ab[k,i]
+         end j
+      end s;
+      q[i]:= g; s:= 0;
+      if i <= m then for j:= l step 1 until n do s:= s + ab[i,j]^2;
+      if s<tol then g:= 0 else
+      begin
+         f:= ab[i,i+1]; g:= if f<0 then sqrt(s) else -sqrt(s);
+         h:= f*g - s; ab[i,i+1] := f-g;
+         for j:=l step 1 until n do e[j]:= ab[i,j]/h;
+         for j:=l step 1 until m do
+         begin
+            s:= 0;
+            for k:= l step 1 until n do s:= s + ab[j,k]*ab[i,k];
+            for k:= l step 1 until n do ab[j,k]:=ab[j,k]+s*e[k]
+         end j
+      end s;
+      y:= abs(q[i]) + abs(e[i]); if y>x then x:= y
+   end i;
+comment ;
+   for i:= n step -1 until 1 do
+   begin
+      if g!=0 then
+      begin
+         h:= ab[i,i+1]*g;
+         for j:=l step 1 until n do ab[j,i]:= ab[i,j]/h;
+         for j:=l step 1 until n do
+         begin
+            s:= 0;
+            for k:= l step 1 until n do s:= s + ab[i,k]*ab[k,j];
+            for k:= l step 1 until n do ab[k,j]:= ab[k,j] + s*ab[k,i]
+         end j
+      end g;
+      for j:= l step 1 until n do ab[i,j]:= ab[j,i]:= 0;
+      ab[i,i]:= 1; g:= e[i]; l:= i
+   end i;
+   eps:= eps*x; n1:= n + 1;
+   for i:= m + 1 step 1 until n do
+   for j:= n1 step 1 until np do ab[i,j]:= 0;
+comment ;
+   for k:= n step -1 until 1 do
+   begin
+      test f splitting:
+         for l:= k step -1 until 1 do
+         begin
+            if abs(e[l]) <= eps then goto test f convergence;
+            if abs(q[l-1]) <= eps then goto cancellation
+         end l;
+comment ;
+      cancellation:
+         c:= 0; s:= 1; l1:= l-1;
+         for i:= l step 1 until k do
+         begin
+            f:= s*e[i]; e[i]:= c*e[i];
+            if abs(f)<=eps then goto test f convergence;
+            g:= q[i]; q[i]:= h:= sqrt(f*f + g*g); c:= g/h; s:= -f/h;
+            for j:= n1 step 1 until np do
+            begin
+               y:= ab[l1,j]; z:= ab[i,j];
+               ab[l1,j]:= c*y+s*z; ab[i,j]:= -s*y+c*z
+            end j
+         end i;
+      test f convergence:
+         z:= q[k]; if l=k then goto convergence;
+comment ;
+      x:= q[l]; y:= q[k-1]; g:= e[k-1]; h:= e[k];
+      f:= ((y-z)*(y+z)+(g-h)*(g+h))/(2*h*y); g:= sqrt(f*f+1);
+      f:= ((x-z)*(x+z)+h*(y/(if f<0 then f-g else f+g)-h))/x;
+comment ;
+      c:= s:= 1;
+      for i:= l+1 step 1 until k do
+      begin
+         g:= e[i]; y:= q[i]; h:= s*g; g:= c*g;
+         e[i-1]:= z:= sqrt(f*f+h*h); c:= f/z; s:= h/z;
+         f:= x*c+g*s; g:= -x*s+g*c; h:= y*s; y:= y*c;
+         for j:= 1 step 1 until n do
+         begin
+            x:= ab[j,i-1]; z:= ab[j,i];
+            ab[j,i-1]:= x*c+z*s; ab[j,i]:= -x*s+z*c
+         end j;
+         q[i-1]:= z:= sqrt(f*f+h*h); c:= f/z; s:= h/z;
+         f:= c*g + s*y; x:= -s*g + c*y;
+         for j:= n1 step 1 until np do
+         begin
+            y:= ab[i-1,j]; z:= ab[i,j];
+            ab[i-1,j]:= c*y + s*z; ab[i,j]:= -s*y + c*z
+         end j
+      end i;
+      e[l]:= 0; e[k]:= f; q[k]:= x; goto test f splitting;
+   convergence:
+       if z<0 then
+       begin comment ;
+          q[k]:= -z;
+          for j:= 1 step 1 until n do ab[j,k]:= -ab[j,k]
+       end z
+    end k
 end;
