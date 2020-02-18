@@ -100,11 +100,11 @@ comment ;
             f:= s*e[i]; e[i]:= c*e[i];
             if abs(f)<=eps then goto test f convergence;
             g:= q[i]; h:= q[i]:= sqrt(f*f+g*g); c:= g/h; s:= -f/h;
-           if withu then for j:= 1 step 1 until m do
-           begin
-               y:= u[j,l1]; z:= u[j,i];
-               u[j,l1]:= y*c+z*s; u[j,i]:= -y*s+z*c
-           end j
+            if withu then for j:= 1 step 1 until m do
+            begin
+                y:= u[j,l1]; z:= u[j,i];
+                u[j,l1]:= y*c+z*s; u[j,i]:= -y*s+z*c
+            end j
          end i;
       test f convergence:
          z:= q[k]; if l=k then goto convergence;
