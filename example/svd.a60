@@ -6,6 +6,10 @@ procedure SVD (m,n,withu,withv,eps,tol) data: (a) result: (q,u,v);
    array a,q,u,v;
 code;
 
+procedure printreal(x);
+value x; real x;
+code;
+
 begin
    integer n, m;
    ininteger(0, m);
@@ -18,13 +22,15 @@ begin
       real array q[1:n], u, v[1:m,1:n];
       eps := 1.5/10^(8);
       tol := 1/10^(30);
-      withu:= withv:= false;
+      withu:= withv:= true;
       for i:= 1 step 1 until m do
       for j:= 1 step 1 until n do
          inreal(0, a[i,j]);
       SVD(m,n,withu,withv,eps,tol,a,q,u,v);
-      print("ans:");
       for i:= 1 step 1 until n do
-         print(q[i]);
+      begin
+         printreal(q[i]);
+         outstring(1, "\n")
+      end
    end
 end

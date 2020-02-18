@@ -6,8 +6,9 @@ CFLAGS = -Og -g
 MARST = marst
 L = libsvd.a
 O = \
-svd.o\
 minifit.o\
+printreal.o\
+svd.o\
 
 $L: $O; ar r $@ $O && ranlib $@
 .c.o:; $(CC) $(CFLAGS) $< -c
