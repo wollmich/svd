@@ -1,36 +1,36 @@
-procedure SVD (m, n, withu, withv, eps, tol) data: (a) result: (q, u, v);
-   value m, n, withu, withv, eps, tol;
-   integer m, n;
-   Boolean withu, withv;
-   real eps, tol ;
-   array a, q, u, v;
+procedure SVD (m,n,withu,withv,eps,tol) data: (a) result: (q,u,v);
+   value m,n,withu,withv,eps,tol;
+   integer m,n;
+   Boolean withu,withv;
+   real eps,tol ;
+   array a,q,u,v;
 comment ;
 begin
-   integer i, j, k, l, l1;
-   real c, f, g, h, s, x, y, z;
+   integer i,j,k,l,l1;
+   real c,f,g,h,s,x,y,z;
    array e[1:n] ;
    for i:= 1 step 1 until m do
-   for j:= 1 step 1 until n do u[i, j]:= a[i, j] ;
+   for j:= 1 step 1 until n do u[i,j]:= a[i,j] ;
 comment ;
    g:= x:= 0;
    for i:= 1 step 1 until n do
    begin
-      e[i]:=g; s:= 0 ; l:= i + 1 ;
-      for j:= i step 1 until m do s:= s + u[j,i]^2;
+      e[i]:=g; s:= 0 ; l:= i+1 ;
+      for j:= i step 1 until m do s:= s+u[j,i]^2;
       if s<tol then g:=0 else
       begin
          f:=u[i,i]; g:= if f<0 then sqrt(s) else -sqrt(s);
-         h:=f*g - s; u[i,i] := f-g;
+         h:=f*g - s; u[i,i]:= f-g;
          for j:= l step 1 until n do
          begin
             s:= 0;
             for k:=i step 1 until m do s:= s+u[k,i]*u[k,j];
             f:=s/h;
-            for k:=i step 1 until m do u[k,j]:= u[k,j] + f*u[k,i]
+            for k:=i step 1 until m do u[k,j]:= u[k,j]+f*u[k,i]
          end j
       end s;
       q[i]:= g; s:= 0;
-      for j:= l step 1 until n do s:= s + u[i,j]^2;
+      for j:= l step 1 until n do s:= s+u[i,j]^2;
       if s<tol then g:=0 else
       begin
          f:= u[i,i+1]; g:= if f<0 then sqrt(s) else -sqrt(s);
@@ -39,12 +39,105 @@ comment ;
          for j:= l step 1 until m do
          begin
             s:=0;
-            for k:=l step 1 until n do s:=s + u[j,k]*u[i,k];
-            for k:=l step 1 until n do u[k,k]:=u[j,k] + s*e[k]
+            for k:=l step 1 until n do s:=s+u[j,k]*u[i,k];
+            for k:=l step 1 until n do u[k,k]:=u[j,k]+s*e[k]
          end j
       end s;
-      y:= abs(q[i]) + abs(e[i]); if y>x then x:=y
+      y:= abs(q[i])+abs(e[i]); if y>x then x:=y
    end i;
 comment ;
-   
-end;
+   if withv then for i:= n step -1 until 1 do
+   begin
+      if g != 0 then
+      begin
+         h:= u[i,i+1]*g;
+         for j:= l step 1 until n do v[j,i]:= u[i,j]/h;
+         for j:= l step 1 until n do
+         begin
+            s:= 0;
+            for k:= l step 1 until n do s:= s+u[i,k]*v[k,j];
+            for k:= l step 1 until n do v[k,j]:= v[k,j]+s*v[k,i]
+         end j
+      end g;
+      for j:= l step 1 until n do v[i,j]:= v[j,i]:= 0;
+      v[i,i]:= 1; g:= e[i]; l:= i
+   end i;
+comment ;
+   if withu then for i:= n step -1 until 1 do
+   begin
+      l:= i+1; g:= q[i];
+      for j:= l step 1 until n do u[i,j]:= 0;
+      if g != 0 then
+      begin
+         h:= u[i,i]*g;
+         for j:= l step 1 until n do
+         begin
+            s:= 0;
+            for k:= l step 1 until m do s:= s+u[k,i]*u[k,j];
+            f:= s/h;
+            for k:= i step 1 until m do u[k,j]:= u[k,j]+f*u[k,i]
+         end j;
+         for j:= i step 1 until m do u[j,i]:= u[j,i]/g
+      end g
+      else for j:= i step 1 until m do u[j,i]:= 0;
+      u[i,i]:= u[i,i]+1
+   end i;
+comment ;
+   eps:= eps*x;
+   for k:= n step -1 until 1 do
+   begin
+      test f splitting:
+         for l:= k step -1 until 1 do
+         begin
+            if abs(e[l]) <= eps then goto test f convergence;
+            if abs(q[l-1]) <= eps then goto cancellation
+         end l;
+comment ;
+      cancellation:
+         c:= 0; s:= 1; l1:= l - 1;
+         for i:= l step 1 until k do
+         begin
+            f:= s*e[i]; e[i]:= c*e[i];
+            if abs(f)<=eps then goto test f convergence;
+            g:= q[i]; h:= q[i]:= sqrt(f*f+g*g); c:= g/h; s:= -f/h;
+           if withu then for j:= 1 step 1 until m do
+           begin
+               y:= u[j,l1]; z:= u[j,i];
+               u[j,l1]:= y*c+z*s; u[j,i]:= -y*s+z*c
+           end j
+         end i;
+      test f convergence:
+         z:= q[k]; if l=k then goto convergence;
+comment ;
+      x:= q[l]; y:= q[k-1]; g:= e[k-1]; h:= e[k];
+      f:= ((y-z)*(y+z)+(g-h)*(g+h))/(2*h*y); g:= sqrt(f*f+1);
+      f:= ((x-z)*(x+z)+h*(y/(if f<0 then f-g else f+g) -h))/x;
+comment ;
+      c:= s:= 1;
+      for i:= l+1 step 1 until k do
+      begin
+         g:= e[i]; y:= q[i]; h:= s*g; g:= c*g;
+         e[i-1]:= z:= sqrt(f*f+h*h); c:= f/z; s:= h/z;
+         f:= x*c+g*s; g:= -x*s+g*c; h:= y*s; y:= y*c;
+         if withv then for j:= 1 step 1 until n do
+         begin
+            x:= v[j,i-1]; z:= v[j,i];
+            v[j,i-1]:= x*c+z*s; v[j,i]:= -x*s+z*c
+         end j;
+         q[i-1]:= z:= sqrt(f*f+h*h); c:= f/z; s:= h/z;
+         f:= c*g+s*y; x:= -s*g+c*y;
+         if withv then for j:=1 step 1 until m do
+         begin
+            y:= u[j,i-1]; z:= u[j,i];
+            u[j,i-1]:= y*c+z*s; u[j,i]:= -y*s+z*c
+         end j
+      end i;
+      e[l]:= 0; e[k]:= f; q[k]:= x; goto test f splitting;
+   convergence:
+      if z<0 then
+      begin comment;
+         q[k]:= -z;
+         if withv then for j:= 1 step 1 until n do v[j,k]:= -v[j,k]
+      end z
+   end k
+end SVD;
