@@ -8,6 +8,7 @@ LINK = $(CC)
 MARST = marst
 M = \
 svd\
+minifit\
 
 all: $M
 .o:; $(LINK) $< $(MARST_LDFLAGS) $(LDFLAGS) -o $@
